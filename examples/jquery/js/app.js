@@ -48,6 +48,8 @@ jQuery(function ($) {
 			new Router({
 				'/:filter': function (filter) {
 					this.filter = filter;
+					//this.storeCurrentTodos();//I think it's unnecessary. `filter` will only have influence
+					//on this.getFilteredTodos() in render(), but won't impact App.todos();
 					this.render();
 				}.bind(this)
 			}).init('/all');
@@ -70,7 +72,10 @@ jQuery(function ($) {
 			$('#toggle-all').prop('checked', this.getActiveTodos().length === 0);
 			this.renderFooter();
 			$('#new-todo').focus();
-			util.store('todos-jquery', this.todos);
+			//util.store('todos-jquery', this.todos);
+		},
+		storeCurrentTodos: function () {
+		        util.store('todos-jquery', this.todos);
 		},
 		renderFooter: function () {
 			var todoCount = this.todos.length;
@@ -90,7 +95,8 @@ jQuery(function ($) {
 			this.todos.forEach(function (todo) {
 				todo.completed = isChecked;
 			});
-
+			
+			this.storeCurrentTodos();
 			this.render();
 		},
 		getActiveTodos: function () {
@@ -117,6 +123,7 @@ jQuery(function ($) {
 		destroyCompleted: function () {
 			this.todos = this.getActiveTodos();
 			this.filter = 'all';
+			this.storeCurrentTodos();
 			this.render();
 		},
 		// accepts an element from inside the `.item` div and
@@ -148,11 +155,13 @@ jQuery(function ($) {
 
 			$input.val('');
 
+			this.storeCurrentTodos();
 			this.render();
 		},
 		toggle: function (e) {
 			var i = this.indexFromEl(e.target);
 			this.todos[i].completed = !this.todos[i].completed;
+			this.storeCurrentTodos();
 			this.render();
 		},
 		edit: function (e) {
@@ -184,10 +193,12 @@ jQuery(function ($) {
 				this.todos[this.indexFromEl(el)].title = val;
 			}
 
+			this.storeCurrentTodos();
 			this.render();
 		},
 		destroy: function (e) {
 			this.todos.splice(this.indexFromEl(e.target), 1);
+			this.storeCurrentTodos();
 			this.render();
 		}
 	};
